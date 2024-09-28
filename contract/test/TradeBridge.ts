@@ -6,60 +6,61 @@ import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import hre from "hardhat";
 
-describe("Lock", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
-    const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-    const ONE_GWEI = 1_000_000_000;
+describe("TradeBridge", function () {
+  
+  async function deployTradeBridge() {
 
-    const lockedAmount = ONE_GWEI;
-    const unlockTime = (await time.latest()) + ONE_YEAR_IN_SECS;
+    const [owner, addr1, addr2] = await hre.ethers.getSigners();
 
-    // Contracts are deployed using the first signer/account by default
-    const [owner, otherAccount] = await hre.ethers.getSigners();
+    const TradeBridge = await hre.ethers.getContractFactory("TradeBridge");
+    const tradeBridge = await TradeBridge.deploy();
 
-    const Lock = await hre.ethers.getContractFactory("Lock");
-    const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-    return { lock, unlockTime, lockedAmount, owner, otherAccount };
+    return { tradeBridge, owner, addr1, addr2 };
   }
 
   describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
-
-      expect(await lock.unlockTime()).to.equal(unlockTime);
-    });
-
-    it("Should set the right owner", async function () {
-      const { lock, owner } = await loadFixture(deployOneYearLockFixture);
-
-      expect(await lock.owner()).to.equal(owner.address);
-    });
-
-    it("Should receive and store the funds to lock", async function () {
-      const { lock, lockedAmount } = await loadFixture(
-        deployOneYearLockFixture
-      );
-
-      expect(await hre.ethers.provider.getBalance(lock.target)).to.equal(
-        lockedAmount
-      );
-    });
-
-    it("Should fail if the unlockTime is not in the future", async function () {
-      // We don't use the fixture here because we want a different deployment
-      const latestTime = await time.latest();
-      const Lock = await hre.ethers.getContractFactory("Lock");
-      await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-        "Unlock time should be in the future"
-      );
+    it("Should deploy smart contract", async function () {
+      const { tradeBridge, owner } = await loadFixture(deployTradeBridge);
     });
   });
 
-  describe("Withdrawals", function () {
+  describe("Function Tests", function () {
+    it("Should add a new commodity", async function () {
+      const { tradeBridge, owner, addr1 } = await loadFixture(deployTradeBridge);
+
+      await expect(tradeBridge.connect(addr1).addCommodity("Rice Commodity", "A very nice rice", 100, "tonnes", 20, "jshdsjdhdsjhdjh", "https://pinata.com/files/file.png", "Jos")).to.emit(
+        tradeBridge,
+        "CommodityAdded"
+      ).withArgs(addr1, 1, "Rice Commodity", "A very nice rice", 100, "tonnes", "jshdsjdhdsjhdjh", "https://pinata.com/files/file.png", time.latestBlock, "Jos");
+    });
+  });
+
+    // it("Should set the right owner", async function () {
+    //   const { lock, owner } = await loadFixture(deployOneYearLockFixture);
+
+    //   expect(await lock.owner()).to.equal(owner.address);
+    // });
+
+    // it("Should receive and store the funds to lock", async function () {
+    //   const { lock, lockedAmount } = await loadFixture(
+    //     deployOneYearLockFixture
+    //   );
+
+    //   expect(await hre.ethers.provider.getBalance(lock.target)).to.equal(
+    //     lockedAmount
+    //   );
+    // });
+
+    // it("Should fail if the unlockTime is not in the future", async function () {
+    //   // We don't use the fixture here because we want a different deployment
+    //   const latestTime = await time.latest();
+    //   const Lock = await hre.ethers.getContractFactory("Lock");
+    //   await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
+    //     "Unlock time should be in the future"
+    //   );
+    // });
+
+  /*describe("Withdrawals", function () {
     describe("Validations", function () {
       it("Should revert with the right error if called too soon", async function () {
         const { lock } = await loadFixture(deployOneYearLockFixture);
@@ -123,5 +124,5 @@ describe("Lock", function () {
         );
       });
     });
-  });
+  });*/
 });
