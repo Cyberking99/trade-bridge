@@ -54,7 +54,6 @@ const Navbar = () => {
           />
           <span className="mr-4 text-white">Trade<span className='text-orange-500'>Bridge</span></span>
         </div>
-
         <div className="flex items-center space-x-4">
           {/* Wallet Connect Button */}
           {isConnected && typeof currentAccount === 'string' ? (
@@ -69,19 +68,18 @@ const Navbar = () => {
               Connect Wallet
             </button>
           )}
-
-          <Link to="/seller-dashboard/create-commodity" className="px-4 text-white py-2 bg-gray-700 border border-orange-500 rounded-full flex items-center">
-            Add Product <FaPlus className="ml-2 bg-orange-500 w-6 h-6 p-2 rounded-full" /> 
+          <Link to="/market-place" className="px-4 text-white py-2 bg-gray-700 border border-orange-500 rounded-full flex items-center">
+            Make Purchase <FaPlus className="ml-2 bg-orange-500 w-6 h-6 p-2 rounded-full" /> 
           </Link>
         </div>
       </header>
 
       <div className="flex justify-between space-x-4 py-4 px-10 border rounded-full mx-5 mt-4 bg-gray-800">
         <div className='flex gap-4'>
-          <Link to="seller-dashboard/my-commodity" className="px-4 py-2 bg-gray-700 border text-white border-orange-500 hover:bg-orange-500 rounded-full flex items-center">
-            My Products <FaBoxOpen className="ml-2" /> 
+          <Link to="buyer-dashboard/view-purchase" className="px-4 py-2 bg-gray-700 border text-white border-orange-500 hover:bg-orange-500 rounded-full flex items-center">
+            View Purchase <FaBoxOpen className="ml-2" /> 
           </Link>
-          <Link to="/disputes" className="px-4 py-2 bg-gray-700 border text-white border-orange-500 hover:bg-orange-500 rounded-full flex items-center">
+          <Link to="/buyer-dashboard/dispute-sale" className="px-4 py-2 bg-gray-700 border text-white border-orange-500 hover:bg-orange-500 rounded-full flex items-center">
             Disputes <FaGavel className="ml-2" /> 
           </Link>
         </div>
@@ -93,6 +91,6 @@ const Navbar = () => {
       </div>
     </div>
   );
-};
+}
 
 export default Navbar;

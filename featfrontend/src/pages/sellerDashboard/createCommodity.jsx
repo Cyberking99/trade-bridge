@@ -1,16 +1,11 @@
 import React, { useState } from "react";
-import Buttons from "../../components/Buttons";
-// Import ethers and your contract's ABI
 import { ethers } from "ethers";
 import { PinataSDK } from "pinata";
 import TradeBridgeABI from "../../../TradeBridge.json";
-import Navbar from "../../components/Navbar";
-// require("dotenv").config();
 
 const CreateCommodity = () => {
   const pinata = new PinataSDK({
-    pinataJwt:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzYmYxZmFiYy0xYzAxLTRiOTItYTYzOS1iNjNjYTQ1NTY4NmEiLCJlbWFpbCI6Imt2bmc2NTZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImJkYzg1NGRjMTI4YTMwYjUzNTY0Iiwic2NvcGVkS2V5U2VjcmV0IjoiODlmZmU4NGRkZjQ4MDgwZGRlZDEzZTkwYjJiMzIzODY4M2NkMjY1ODFhOTQwOGFmNjcxNmJkNWM0YmIzN2Q2ZCIsImV4cCI6MTc1ODkyOTU4NH0.8V2wO6sqlAkZGwkA28rf32DyeekyGjjRykhWAx62Iz8",
+    pinataJwt: "YOUR_PINATA_JWT_HERE",
     pinataGateway: "cyan-hilarious-cuckoo-772.mypinata.cloud",
   });
 
@@ -22,31 +17,48 @@ const CreateCommodity = () => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [imageOne, setImageOne] = useState(null);
-  const [imageTwo, setImageTwo] = useState(null);
-  const [imageThree, setImageThree] = useState(null);
-  const [imageFour, setImageFour] = useState(null);
 
-  const handleImageUpload = async (event, setImage) => {
+  const [errors, setErrors] = useState({});
+
+  const validateForm = () => {
+    const newErrors = {};
+    if (!commodityName) newErrors.commodityName = "Commodity Name is required.";
+    if (!quantity) newErrors.quantity = "Quantity is required.";
+    if (!measurement) newErrors.measurement = "Measurement is required.";
+    if (!price) newErrors.price = "Price is required.";
+    if (!description) newErrors.description = "Description is required.";
+    if (!location) newErrors.location = "Location is required.";
+    if (!imageOne) newErrors.imageOne = "Image is required.";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
+
+    const maxSize = 10 * 1024 * 1024;
     if (file) {
+      if (file.size > maxSize) {
+        alert("File size exceeds 10MB. Please upload a smaller file.");
+        return;
+      }
+
       const reader = new FileReader();
 
       reader.onloadend = async () => {
         try {
-          const base64Data = reader.result.split(",")[1]; // Get the base64 part of the data URL
+          const base64Data = reader.result.split(",")[1];
           const blob = new Blob([
             new Uint8Array(
               await (await fetch(`data:image/jpeg;base64,${base64Data}`)).blob()
             ),
           ]);
 
-          // Upload to Pinata
           const upload = await pinata.upload.file(blob, {
             pinataMetadata: { name: file.name },
           });
-          console.log(upload);
 
-          // Store the image CID in state
           setImageOne(upload.cid);
         } catch (error) {
           console.error("Error uploading file:", error);
@@ -57,56 +69,30 @@ const CreateCommodity = () => {
     }
   };
 
-  // async function upload() {
-  //   try {
-  //     const file = new File(["hello"], "Testing.txt", { type: "text/plain" });
-  //     const upload = await pinata.upload.file(file);
-  //     console.log(upload);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
-
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    await Promise.all([
-      imageOne
-        ? Promise.resolve(imageOne)
-        : handleImageUpload(
-            document.querySelector('input[type="file"]'),
-            setImageOne
-          ),
-    ]);
+    if (!validateForm()) {
+      return;
+    }
 
     if (window.ethereum) {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
-
         const contractAddress = import.meta.env.VITE_TRADE_BRIDGE_SCA;
-        console.log("Contract Address:", contractAddress);
 
-        // Check if contractAddress is valid
         if (!contractAddress || !ethers.isAddress(contractAddress)) {
           console.error("Invalid contract address:", contractAddress);
           alert("Contract address is not defined or invalid.");
           return;
         }
 
-        // Create contract instance
         const commodityContract = new ethers.Contract(
           contractAddress,
           TradeBridgeABI,
           signer
         );
-        console.log("Contract Object:", commodityContract);
-        // console.log(
-        //   "Available Functions:",
-        //   Object.keys(commodityContract.functions)
-        // );
 
-        // Call the createCommodity function
         const tx = await commodityContract.addCommodity(
           commodityName,
           description,
@@ -120,7 +106,7 @@ const CreateCommodity = () => {
           location
         );
 
-        await tx.wait(); // Wait for the transaction to be mined
+        await tx.wait();
         alert("Commodity created successfully!");
       } catch (error) {
         console.error("Error creating commodity:", error);
@@ -132,96 +118,145 @@ const CreateCommodity = () => {
   };
 
   return (
-    <div className="bg-gray-900">
-       <h1 className="text-xl text-white font-normal p-10 mb-4">Create Commodities</h1>
-    <div className="p-10 flex justify-center h-screen">
-      {/* Form for creating a commodity */}
-      <form className="space-y-2 w-[700px]" onSubmit={handleSubmit}>
-        <div>
-          <label>Commodity Name</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter commodity name"
-            value={commodityName}
-            onChange={(e) => setCommodityName(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Commodity Quantity</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter available quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Quantity Measurement</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="E.g (Kg, tonnes)"
-            value={measurement}
-            onChange={(e) => setMeasurement(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Price per Quantity</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Commodity Locatiion</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="E.g (Abuja, Accra, etc)"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Commodity Description</label>
-          <textarea
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter commodity description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Upload Image</label>
-          <input
-            type="file"
-            className="border rounded-lg w-full p-3 h-24 bg-white cursor-pointer hover:border-blue-500"
-            accept="image/*"
-            onChange={(event) => handleImageUpload(event, setImageOne)}
-          />
-          {imageOne && (
-            <img
-              src={imageOne}
-              alt="Uploaded Preview"
-              className="mt-2 h-40 w-auto rounded-lg"
+    <div className="bg-gray-900 text-white min-h-screen p-8">
+      <h1 className="text-2xl font-normal text-center mb-8">Add Commodity</h1>
+      <div className="flex justify-center">
+        <form
+          className="bg-gray-800 text-gray-900 rounded-2xl shadow-lg w-full max-w-2xl p-6 space-y-6"
+          onSubmit={handleSubmit}
+        >
+          <div className="flex flex-col">
+            <label className="font-medium text-white">Commodity Name</label>
+            <input
+              type="text"
+              className="appearance-none bg-transparent mt-2 border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              value={commodityName}
+              onChange={(e) => setCommodityName(e.target.value)}
             />
-          )}
-        </div>
-        <div className="mt-4">
+            {errors.commodityName && (
+              <p className="text-red-500">{errors.commodityName}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-white">Commodity Quantity</label>
+            <input
+              type="text"
+              className="appearance-none bg-transparent mt-2 border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+            />
+            {errors.quantity && (
+              <p className="text-red-500">{errors.quantity}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-white">
+              Quantity Measurement
+            </label>
+            <input
+              type="text"
+              className="appearance-none bg-transparent mt-2 border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              placeholder="E.g (Kg, tonnes)"
+              value={measurement}
+              onChange={(e) => setMeasurement(e.target.value)}
+            />
+            {errors.measurement && (
+              <p className="text-red-500">{errors.measurement}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-white">Price per Quantity</label>
+            <input
+              type="text"
+              className="appearance-none bg-transparent mt-2 border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            {errors.price && <p className="text-red-500">{errors.price}</p>}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-white">Commodity Location</label>
+            <input
+              type="text"
+              className="appearance-none bg-transparent border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              placeholder="E.g (Abuja, Accra, etc)"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+            {errors.location && (
+              <p className="text-red-500">{errors.location}</p>
+            )}
+          </div>
+
+          <div className="flex flex-col">
+            <label className="font-medium text-white">
+              Commodity Description
+            </label>
+            <textarea
+              className="appearance-none bg-transparent mt-2 border-b w-full text-gray-100 mr-3 py-1 px-2 leading-tight focus:outline-none"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+            />
+            {errors.description && (
+              <p className="text-red-500">{errors.description}</p>
+            )}
+          </div>
+
+          {/* Image upload */}
+          <div className="flex items-center justify-center w-full">
+            <label
+              htmlFor="dropzone-file"
+              className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+            >
+              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                <svg
+                  className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 20 16"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                  />
+                </svg>
+                <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                  <span className="font-semibold">Click to upload</span> or drag
+                  and drop
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  PNG, JPG, or JPEG (MAX. 10MB)
+                </p>
+              </div>
+              <input
+                id="dropzone-file"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageUpload}
+              />
+            </label>
+            {errors.imageOne && (
+              <p className="text-red-500">{errors.imageOne}</p>
+            )}
+          </div>
+
           <button
             type="submit"
-            className="bg-gradient-to-r from-orange-400 to-yellow-500 text-black px-6 py-3 w-full rounded-full shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
+            className="w-full bg-orange-500 text-white py-2 px-4 rounded-full mt-4"
           >
             Create Commodity
           </button>
-        </div>
-      </form>
-    </div>
+        </form>
+      </div>
     </div>
   );
 };

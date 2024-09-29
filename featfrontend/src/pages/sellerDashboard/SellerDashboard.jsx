@@ -60,7 +60,7 @@ const SellerDashboard = ({ signer }) => {
 <div className="col-span-4 grid grid-cols-2 gap-4">
   {/* First Graph Card */}
   <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h4 className="font-bold mb-4">Top Selling Products</h4>
+    <h4 className="font-bold mb-4">Top Selling Commodities</h4>
     <div className="bg-gray-700 p-4 h-64 rounded-lg">
       {/* Placeholder for chart (use a charting library like Chart.js or Recharts) */}
       <p>Graph Placeholder 1</p>
@@ -69,7 +69,7 @@ const SellerDashboard = ({ signer }) => {
 
   {/* Second Graph Card */}
   <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-    <h4 className="font-bold mb-4">Top Selling Products</h4>
+    <h4 className="font-bold mb-4">Top Selling Commodities</h4>
     <div className="bg-gray-700 p-4 h-64 rounded-lg">
       {/* Placeholder for chart (use a charting library like Chart.js or Recharts) */}
       <p>Graph Placeholder 2</p>
@@ -77,37 +77,45 @@ const SellerDashboard = ({ signer }) => {
   </div>
 </div>
 
+<div className="col-span-4 bg-gray-800 p-6 rounded-lg shadow-lg">
+  <h4 className="font-bold mb-4">Recent Orders</h4>
+  <table className="w-full text-left table-auto">
+    <thead>
+      <tr>
+        <th className="px-4 py-2">#</th>
+        <th className="px-4 py-2">Date</th>
+        <th className="px-4 py-2">Order</th>
+        <th className="px-4 py-2">Status</th>
+        <th className="px-4 py-2">Total</th>
+        <th className="px-4 py-2">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr className="mb-2"> {/* Add margin-bottom here for each row */}
+        <td className="px-4 py-2">1</td>
+        <td className="px-4 py-2">5:40am</td>
+        <td className="px-4 py-2">Lorem ipsum dolor sit</td>
+        <td className="px-4 py-2 bg-yellow-600 opacity-50 text-white rounded-full mb-3">Pending</td> {/* Add mb-2 for spacing */}
+        <td className="px-4 py-2">$120.00</td>
+        <td className="px-4 py-2">
+          <button className="text-red-500">Delete</button>
+        </td>
+      </tr>
+      <tr className="space-y-2"> {/* Add margin-bottom here for each row */}
+        <td className="px-4 py-2">2</td>
+        <td className="px-4 py-2">6:00am</td>
+        <td className="px-4 py-2">Lorem ipsum dolor sit amet</td>
+        <td className="px-4 py-2 bg-yellow-600 opacity-50  text-white rounded-full mb-3">Pending</td> {/* Add mb-2 for spacing */}
+        <td className="px-4 py-2">$150.00</td>
+        <td className="px-4 py-2">
+          <button className="text-red-500">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+</div>
 
-        {/* Recent Orders */}
-        <div className="col-span-4 bg-gray-800 p-6 rounded-lg shadow-lg">
-          <h4 className="font-bold mb-4">Recent Orders</h4>
-          <table className="w-full text-left table-auto">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">#</th>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Order</th>
-                <th className="px-4 py-2">Status</th>
-                <th className="px-4 py-2">Total</th>
-                <th className="px-4 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2">1</td>
-                <td className="px-4 py-2">5:40 am</td>
-                <td className="px-4 py-2">Lorem ipsum dolor sit</td>
-                <td className="px-4 py-2 text-yellow-500">Pending</td>
-                <td className="px-4 py-2">$120.00</td>
-                <td className="px-4 py-2">
-                  <button className="text-red-500">Delete</button>
-                </td>
-              </tr>
-              {/* Add more rows here as needed */}
-            </tbody>
-          </table>
-        </div>
-      </div>
 
       {/* Outlet for dynamic content */}
       <main className="flex-1 p-6">

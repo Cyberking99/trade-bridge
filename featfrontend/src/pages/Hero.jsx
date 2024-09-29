@@ -64,7 +64,7 @@ const Hero = () => {
         />
         <div className="text-center mx-5">
           <p className="text-[rgb(20,28,43)] font-bold text-base sm:text-lg md:text-4xl mb-4">
-            Discover exclusive products and enjoy decentralized ownership in
+            Discover exclusive commodities and enjoy decentralized ownership in
             every purchase.
           </p>
           <p className="text-white text-base sm:text-lg md:text-xl mb-4">

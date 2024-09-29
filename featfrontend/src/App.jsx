@@ -8,6 +8,7 @@ import { useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
+import NavbarTwo from "./components/NavbarTwo"
 import Hero from "./pages/Hero";
 import BuyerDashboard from "./pages/buyerDashboard/BuyerDashboard";
 import SellerDashboard from "./pages/sellerDashboard/SellerDashboard";
@@ -37,6 +38,13 @@ function App() {
     "/seller-dashboard/dispute"
   ].includes(location.pathname);
 
+  const showNavbarTwo = [
+    "/buyer-dashboard",
+    "/buyer-dashboard/purchase-commodity",
+    "/buyer-dashboard/view-purchase",
+    "/buyer-dashboard/dispute-sale"
+  ].includes(location.pathname);
+
   return (
     <div className="App flex flex-col min-h-screen">
       {/* Header is only visible on the Hero page */}
@@ -45,6 +53,7 @@ function App() {
       {/* Show Navbar only for specified routes */}
       {showNavbar && <Navbar />}
 
+      {showNavbarTwo && <NavbarTwo />}
       {/* Main content */}
       <main className="flex-grow w-auto h-auto bg-gray-200">
         <Routes>

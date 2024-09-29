@@ -40,10 +40,11 @@ const ViewPurchase = () => {
   }
 
   return (
-    <div className='p-8 mx-40 mt-24'>
-      <h1 className='text-2xl font-bold mb-4'>My Purchases</h1>
+    <div className='bg-gray-900 h-screen'>
+    <div className='p-8 text-center'>
+      <h1 className='text-2xl text-white font-bold mb-4'>My Purchases</h1>
       {purchases.length === 0 ? (
-        <p>No purchases found.</p>
+        <p className='text-white'>No purchases found.</p>
       ) : (
         <div className='grid grid-cols-1 gap-6'>
           {purchases.map((purchase, index) => (
@@ -56,6 +57,7 @@ const ViewPurchase = () => {
           ))}
         </div>
       )}
+    </div>
     </div>
   );
 };
