@@ -1,18 +1,21 @@
 import React, { useState } from "react";
-import Buttons from "../../components/Buttons";
 import { ethers } from "ethers";
 import { PinataSDK } from "pinata";
 import TradeBridgeABI from "../../../TradeBridge.json";
+// import 'dotenv/config';
+
 // require("dotenv").config();
+
+// console.log(process.env)
+
+// const { CONTRACT_ADDRESS } = process.env;
 
 const CreateCommodity = () => {
   const pinata = new PinataSDK({
-    pinataJwt:
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJjMTg5ZWQ3MC1jYjczLTRhMjItYmIxNS01NDlkNDMyZDBkMWEiLCJlbWFpbCI6ImRpbWtheWlscml0QGdtYWlsLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJwaW5fcG9saWN5Ijp7InJlZ2lvbnMiOlt7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6IkZSQTEifSx7ImRlc2lyZWRSZXBsaWNhdGlvbkNvdW50IjoxLCJpZCI6Ik5ZQzEifV0sInZlcnNpb24iOjF9LCJtZmFfZW5hYmxlZCI6ZmFsc2UsInN0YXR1cyI6IkFDVElWRSJ9LCJhdXRoZW50aWNhdGlvblR5cGUiOiJzY29wZWRLZXkiLCJzY29wZWRLZXlLZXkiOiJjMzdjMGM4M2U2NzY3NjU3NTViMiIsInNjb3BlZEtleVNlY3JldCI6IjFmODg2NmVmM2YxYTQ2YjhkODEwNjVkMjE0MDM5N2YzNzQ0NzMxYzU4YmQ1NzJiOThiMzU1YzNjOWE0ZDFmOTAiLCJleHAiOjE3NTkwNzQxOTl9.vLweD79JOQF4ipLiGMQdyLyukEiClF9pHY34mu77J6Q",
-    pinataGateway: "cyan-hilarious-cuckoo-772.mypinata.cloud",
+    pinataJwt: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzYmYxZmFiYy0xYzAxLTRiOTItYTYzOS1iNjNjYTQ1NTY4NmEiLCJlbWFpbCI6Imt2bmc2NTZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImJkYzg1NGRjMTI4YTMwYjUzNTY0Iiwic2NvcGVkS2V5U2VjcmV0IjoiODlmZmU4NGRkZjQ4MDgwZGRlZDEzZTkwYjJiMzIzODY4M2NkMjY1ODFhOTQwOGFmNjcxNmJkNWM0YmIzN2Q2ZCIsImV4cCI6MTc1ODkyOTU4NH0.8V2wO6sqlAkZGwkA28rf32DyeekyGjjRykhWAx62Iz8",
+    pinataGateway: "https://gateway.pinata.cloud",
   });
-
-  // State variables for the commodity form
+  
   const [commodityName, setCommodityName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [measurement, setMeasurement] = useState("");
@@ -20,32 +23,22 @@ const CreateCommodity = () => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [imageOne, setImageOne] = useState(null);
-  const [imageTwo, setImageTwo] = useState(null);
-  const [imageThree, setImageThree] = useState(null);
-  const [imageFour, setImageFour] = useState(null);
+  const [file, setFile] = useState(null);
+  const [filePrev, setFilePrev] = useState(null);
 
-  const handleImageUpload = async (event, setImage) => {
-    const file = event.target.files[0];
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    console.log(file)
     if (file) {
       const reader = new FileReader();
 
       reader.onloadend = async () => {
         try {
           const base64Data = reader.result.split(",")[1];
-          console.log(base64Data) // Get the base64 part of the data URL
-          const blob = new Blob([
-            new Uint8Array(
-              await (await fetch(`data:image/jpeg;base64,${base64Data}`)).blob()
-            ),
-          ]);
-
-          // Upload to Pinata
-          const upload = await pinata.upload.file(blob, {
-            pinataMetadata: { name: file.name },
-          });
-          console.log(upload);
-
-            setImageOne(upload.cid);
+          console.log(base64Data)
+          setFile(e.target.files[0]);
+          setImageOne(e.target.files[0].name)
+          setFilePrev(base64Data)
         } catch (error) {
           console.error("Error uploading file:", error);
         }
@@ -55,70 +48,53 @@ const CreateCommodity = () => {
     }
   };
 
-  // async function upload() {
-  //   try {
-  //     const file = new File(["hello"], "Testing.txt", { type: "text/plain" });
-  //     const upload = await pinata.upload.file(file);
-  //     console.log(upload);
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // }
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      try {
+        const upload = await pinata.pinFileToIPFS(file, {
+          pinataMetadata: { name: file.name },
+        });
+        setImageOne(upload.IpfsHash); // Store the IPFS hash
+      } catch (error) {
+        console.error("Error uploading file:", error);
+      }
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    await Promise.all([
-      imageOne
-        ? Promise.resolve(imageOne)
-        : handleImageUpload(
-            document.querySelector('input[type="file"]'),
-            setImageOne
-          ),
-    ]);
 
     if (window.ethereum) {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
         const signer = await provider.getSigner();
-
-        const contractAddress = import.meta.env.VITE_TRADE_BRIDGE_SCA;
-        console.log("Contract Address:", contractAddress);
-
+        const contract = new ethers.Contract("0x4BF47939E4f6f463AFF6f2Eb9E617902B4D186b9", TradeBridgeABI, signer);
         
-        if (!contractAddress || !ethers.isAddress(contractAddress)) {
-          console.error("Invalid contract address:", contractAddress);
-          alert("Contract address is not defined or invalid.");
-          return;
-        }
+        const imageURL = `https://gateway.pinata.cloud/ipfs/${imageOne}`
 
-        // Create contract instance
-        const commodityContract = new ethers.Contract(
-          contractAddress,
-          TradeBridgeABI,
-          signer
-        );
-        console.log("Contract Object:", commodityContract);
-        // console.log(
-        //   "Available Functions:",
-        //   Object.keys(commodityContract.functions)
-        // );
-
-        // Call the createCommodity function
-        const tx = await commodityContract.addCommodity(
+        console.log(
           commodityName,
           description,
           quantity,
           measurement,
           price,
           imageOne,
-          "imageTwo",
-          "imageThree",
-          "imageFour",
+          imageURL,
+          location
+        )
+        const tx = await contract.addCommodity(
+          commodityName,
+          description,
+          quantity,
+          measurement,
+          price,
+          imageOne,
+          imageURL,
           location
         );
 
-        await tx.wait(); 
+        await tx.wait();
         alert("Commodity created successfully!");
       } catch (error) {
         console.error("Error creating commodity:", error);
@@ -130,93 +106,84 @@ const CreateCommodity = () => {
   };
 
   return (
-    <div className="mt-20 mx-24">
+    <div className="mt-20 justify-center items-center mx-24">
       <h1 className="text-3xl font-bold mb-4">Create Commodity</h1>
-      {/* Form for creating a commodity */}
       <form className="space-y-2 w-[700px]" onSubmit={handleSubmit}>
-        <div>
-          <label>Commodity Name</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter commodity name"
-            value={commodityName}
-            onChange={(e) => setCommodityName(e.target.value)}
+        <input
+          type="text"
+          placeholder="Commodity Name"
+          value={commodityName}
+          onChange={(e) => setCommodityName(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Quantity"
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Measurement (Kg, tonnes)"
+          value={measurement}
+          onChange={(e) => setMeasurement(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <input
+          type="number"
+          placeholder="Price per Quantity"
+          value={price}
+          onChange={(e) => setPrice(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <input
+          type="text"
+          placeholder="Location"
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <textarea
+          placeholder="Description"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          className="border rounded-xl w-full p-3"
+          required
+        />
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="file:mr-4 file:py-2 file:px-4
+                    file:rounded-full file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-violet-50 file:text-violet-700
+                    hover:file:bg-violet-100
+                    border rounded-lg w-full p-3 h-15
+                    bg-white cursor-pointer"
+          required
+        />
+        {file && (
+          <div class="flex items-center justify-center">
+          <img
+            src={`data:image/png;base64,${filePrev}`}
+            alt="Uploaded Preview"
+            className="mt-2 h-40 w-auto rounded-lg"
           />
-        </div>
-        <div>
-          <label>Commodity Quantity</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter available quantity"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Quantity Measurement</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="E.g (Kg, tonnes)"
-            value={measurement}
-            onChange={(e) => setMeasurement(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Price per Quantity</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter price"
-            value={price}
-            onChange={(e) => setPrice(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Commodity Locatiion</label>
-          <input
-            type="text"
-            className="border rounded-xl w-full p-3"
-            placeholder="E.g (Abuja, Accra, etc)"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Commodity Description</label>
-          <textarea
-            className="border rounded-xl w-full p-3"
-            placeholder="Enter commodity description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-        </div>
-        <div>
-          <label>Upload Image</label>
-          <input
-            type="file"
-            className="border rounded-lg w-full p-3 h-24 bg-white cursor-pointer hover:border-blue-500"
-            accept="image/*"
-            onChange={(event) => handleImageUpload(event, setImageOne)}
-          />
-          {imageOne && (
-            <img
-              src={imageOne}
-              alt="Uploaded Preview"
-              className="mt-2 h-40 w-auto rounded-lg"
-            />
-          )}
-        </div>
-        <div className="mt-4">
-          <button
-            type="submit"
-            className="bg-gradient-to-r from-orange-400 to-yellow-500 text-black px-6 py-3 w-full rounded-full shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
-          >
-            Create Commodity
-          </button>
-        </div>
+          </div>
+        )}
+        <button
+          type="submit"
+          className="bg-gradient-to-r from-orange-400 to-yellow-500 text-black px-6 py-3 w-full rounded-full shadow-md hover:scale-105 transform transition duration-300 ease-in-out"
+        >
+          Create Commodity
+        </button>
       </form>
     </div>
   );
