@@ -43,7 +43,7 @@ const Hero = () => {
               🦊 <span className="ml-2">Connect wallet as a Buyer</span>
             </Link>
             <Link
-              to="/seller-dashboard"
+              to="/seller-dashboard/create-commodity"
               className="flex items-center border-2 border-[#FF6B6B] hover:bg-[#FF5050] text-white py-3 px-6 rounded-full text-lg"
             >
               🦊 <span className="ml-2">Connect wallet as a Seller</span>

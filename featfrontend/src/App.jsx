@@ -5,6 +5,8 @@ import {
   useLocation,
 } from "react-router-dom";
 import { useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
@@ -19,6 +21,10 @@ import MyCommodity from "./pages/sellerDashboard/MyCommodity";
 import PurchaseCommodity from "./pages/buyerDashboard/Purchase";
 import ViewPurchase from "./pages/buyerDashboard/ViewPurchase";
 import DisputeSale from "./pages/buyerDashboard/Dispute";
+import ProductForm from "./pages/ProductForm";
+import Home from "./pages/Home";
+import ProductList from "./pages/ProductList";
+import MarketPlaceListing from "./pages/MarketPlaceListing";
 
 function App() {
   const [signer, setSigner] = useState(null);
@@ -47,9 +53,14 @@ function App() {
 
       {/* Main content */}
       <main className="flex-grow w-auto h-auto bg-gray-200">
+      
         <Routes>
           {/* Route for Hero */}
           <Route path="/" element={<Hero />} />
+          <Route path="/home" element={<Home />} />
+          <Route path="/product" element={<ProductForm />} />
+          <Route path="/list" element={<ProductList />} />
+          <Route path="/marketplace" element={<MarketPlaceListing />} />
 
           {/* Seller Dashboard */}
           <Route path="/seller-dashboard" element={<SellerDashboard signer={signer} />} />

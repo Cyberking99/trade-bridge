@@ -2,13 +2,87 @@ import React, { useEffect, useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { Link } from "react-router-dom";
 import Logo from "../assets/images/trade_bridge.png";
+import { ethers } from "ethers";
 
-const Header = () => {
+const Header = ({ setSigner, setAccount }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [account, setAccountState] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      console.log("MetaMask detected");
+      console.log('clicked')
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        
+        const userSigner = await provider.getSigner();
+        const accounts = await provider.listAccounts();
+        
+        setSigner(userSigner);
+        setAccount(accounts[0]);
+        setAccountState(accounts[0]);
+        console.log("Connected account:", accounts[0]);
+      } catch (error) {
+        if (error.code === 4001) {
+          console.error("User rejected the request.");
+          alert("You rejected the connection request. Please connect to use the app.");
+        } else {
+          console.error("Error fetching accounts or connecting to MetaMask:", error);
+        }
+      }
+    } else {
+      console.error("MetaMask not installed. Please install MetaMask to use this app.");
+      alert("MetaMask not installed. Please install it to proceed.");
+    }
+  };
+
+  
+
+  const disconnectWallet = () => {
+    setAccountState(null);
+    setAccount(null);
+    setSigner(null);
+    setDropdownOpen(false);
+    console.log("Wallet disconnected");
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const accountsChangedHandler = (accounts) => {
+      if (accounts.length > 0) {
+        console.log(accounts[0])
+        setAccountState(accounts[0]);
+        setAccount(accounts[0]);
+      } else {
+        disconnectWallet();
+      }
+    };
+
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", accountsChangedHandler);
+      window.ethereum.on("disconnect", disconnectWallet);
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener("accountsChanged", accountsChangedHandler);
+        window.ethereum.removeListener("disconnect", disconnectWallet);
+      }
+    };
+  }, []);
+  
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 0);
     window.addEventListener("scroll", handleScroll);
