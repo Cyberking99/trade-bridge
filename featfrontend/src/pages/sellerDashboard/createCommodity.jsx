@@ -1,21 +1,16 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { Camera, Box, AlertCircle } from 'lucide-react';
-import Buttons from "../../components/Buttons";
-// Import ethers and your contract's ABI
 import { ethers } from "ethers";
-import { PinataSDK } from "pinata";
-import TradeBridgeABI from "../../../TradeBridge.json";
-import Navbar from "../../components/Navbar";
-// import toast from "toastify";
+import TradeBridgeABI from "../../../ABIs/TradeBridge.json";
 import { ToastContainer, toast } from 'react-toastify';
 import OverlayLoader from "overlay-loading-react";
 import 'react-toastify/dist/ReactToastify.css';
-// require("dotenv").config();
 
 const CreateCommodity = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [buttonTitle, setButtonTitle] = useState("Create Commodity");
   const [commodityName, setCommodityName] = useState("");
   const [quantity, setQuantity] = useState("");
   const [measurement, setMeasurement] = useState("");
@@ -29,6 +24,7 @@ const CreateCommodity = () => {
 
   const handleFileChange = async (e) => {
     setIsSubmitting(true);
+    setButtonTitle("Uploading File...");
     setFile(e.target.files[0]);
     console.log(e.target.files)
     console.log(file)
@@ -43,10 +39,12 @@ const CreateCommodity = () => {
         maxBodyLength: Infinity,
         url: 'https://uploads.pinata.cloud/v3/files',
         headers: {
-          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiIzYmYxZmFiYy0xYzAxLTRiOTItYTYzOS1iNjNjYTQ1NTY4NmEiLCJlbWFpbCI6Imt2bmc2NTZAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiRlJBMSJ9LHsiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjEsImlkIjoiTllDMSJ9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6ImJkYzg1NGRjMTI4YTMwYjUzNTY0Iiwic2NvcGVkS2V5U2VjcmV0IjoiODlmZmU4NGRkZjQ4MDgwZGRlZDEzZTkwYjJiMzIzODY4M2NkMjY1ODFhOTQwOGFmNjcxNmJkNWM0YmIzN2Q2ZCIsImV4cCI6MTc1ODkyOTU4NH0.8V2wO6sqlAkZGwkA28rf32DyeekyGjjRykhWAx62Iz8'
+          'Authorization': `Bearer ${import.meta.env.VITE_PINATA_JWT}`
         },
         data: data
       };
+
+      
 
       try {
         const response = await axios.request(config);
@@ -69,9 +67,11 @@ const CreateCommodity = () => {
             setImage(response.data.data.id)
             setImageCID(response.data.data.cid)
             setFilePrev(base64Data)
+            setButtonTitle("Add Commodity")
           } catch (error) {
             console.error("Error uploading file:", error);
           } finally {
+            setButtonTitle("Create Commodity")
             setIsSubmitting(false);
           }
         };
@@ -89,6 +89,7 @@ const CreateCommodity = () => {
 
   const handleSubmit = async (event) => {
     setIsSubmitting(true);
+    setButtonTitle("Adding Commodity...")
     event.preventDefault();
     if (window.ethereum) {
       try {
@@ -102,6 +103,7 @@ const CreateCommodity = () => {
           console.error("Invalid contract address:", contractAddress);
           toast.error("Contract address is not defined or invalid.");
           setIsSubmitting(false);
+          setButtonTitle("Add Commodity")
           return;
         }
 
@@ -128,6 +130,7 @@ const CreateCommodity = () => {
         if (!commodityName || !description || !quantity || !measurement || !price || !image || !imageCID || !location) {
           toast.error("All fields are required.");
           setIsSubmitting(false);
+          setButtonTitle("Add Commodity")
           return;
         }
 
@@ -145,14 +148,30 @@ const CreateCommodity = () => {
         await tx.wait();
         toast.success("Commodity created successfully!");
         setSuccess(true);
+        setIsSubmitting(false);
+        
+        setCcommodityName("");
+        setQuantity("");
+        setMeasurement("");
+        setPrice("");
+        setDescription("");
+        setLocation("");
+        setImage(null);
+        setImageCID(null);
+        setFile(null);
+        setFilePrev(null);
+
+        setButtonTitle("Create Commodity");
       } catch (error) {
         console.error("Error creating commodity:", error);
         toast.error("Failed to create commodity. Check console for details.");
         setIsSubmitting(false);
+        setButtonTitle("Add Commodity")
       }
     } else {
       toast.error("Please install MetaMask to use this feature.");
       setIsSubmitting(false);
+      setButtonTitle("Add Commodity")
     }
   };
 
@@ -162,7 +181,7 @@ const CreateCommodity = () => {
       <h1 className="text-xl text-white font-normal p-10 pb-0 mb-2 flex justify-center">Create Commodities</h1>
       <div className="p-10 pt-0 flex justify-center">
         {/* Form for creating a commodity */}
-        <form className="space-y-2 w-[700px]" onSubmit={handleSubmit}>
+        <form className="space-y-2 w-[700px]" id="addCommodity" onSubmit={handleSubmit}>
           <div>
             <label className="text-white block mb-2 text-sm font-medium">COMMODITY NAME:</label>
             <input
@@ -194,7 +213,7 @@ const CreateCommodity = () => {
             />
           </div>
           <div>
-            <label className="text-white block mb-2 text-sm font-medium">PRICE PER QUANTITY (LSK):</label>
+            <label className="text-white block mb-2 text-sm font-medium">PRICE PER QUANTITY (ETH):</label>
             <input
               type="text"
               className="border rounded-xl w-full p-3"
@@ -263,7 +282,7 @@ const CreateCommodity = () => {
               disabled={isSubmitting}
               className="w-full bg-orange-500 text-white py-2 rounded-full hover:bg-orange-600 transition duration-300"
             >
-              {isSubmitting ? 'Creating Commodity...' : 'Create Commodity'}
+              {buttonTitle}
             </button>
           </div>
         </form>

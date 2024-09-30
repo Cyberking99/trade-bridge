@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import TradeBridgeABI from '../../../TradeBridge.json'; // Update the path as necessary
+import TradeBridgeABI from '../../../ABIs/TradeBridge.json';
 
 const ViewPurchase = () => {
   const [purchases, setPurchases] = useState([]);

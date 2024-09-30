@@ -26,27 +26,27 @@ const Hero = () => {
 
           {/* Vertical Button */}
           <div className="flex flex-col items-center mt-1 -ml-20">
-            <div className="h-[200px] w-[2px] bg-[#FF6B6B] mb-[70px]"></div>
+            <div className="h-[200px] w-[2px] bg-[#FF6B6B] mb-[90px]"></div>
             <Link to="/market-place">
               <button className="border-2 rounded-full px-5 py-2 transform rotate-90 whitespace-nowrap border-[#FF6B6B] hover:bg-[#FF5050]">
-                Explore Marketplace
+              🛍️ Explore Marketplace
               </button>
             </Link>
           </div>
 
           {/* Wallet Buttons at the bottom */}
-          <div className="flex flex-col space-y-3 mt-auto">
+          <div className="flex flex-col ml-16 space-y-3 mt-auto">
             <Link
-              to="/buyer-dashboard"
+              to="/market-place"
               className="flex items-center border-2 border-[#FF6B6B] hover:bg-[#FF5050] text-white py-3 px-6 rounded-full text-lg"
             >
-              🦊 <span className="ml-2">Connect wallet as a Buyer</span>
+              🛒 <span className="ml-2">Buyer</span>
             </Link>
             <Link
               to="/seller-dashboard/create-commodity"
               className="flex items-center border-2 border-[#FF6B6B] hover:bg-[#FF5050] text-white py-3 px-6 rounded-full text-lg"
             >
-              🦊 <span className="ml-2">Connect wallet as a Seller</span>
+              💰 <span className="ml-2">Seller</span>
             </Link>
           </div>
         </div>

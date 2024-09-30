@@ -5,12 +5,16 @@ import blockies from 'blockies';
 import Skeleton from "../../components/Skeleton";
 import Logo from "../../assets/images/trade_bridge.png";
 import {ethers} from "ethers";
+import TradeBridgeABI from "../../../ABIs/TradeBridge.json";
+import { getSignedUrlFromPinata, checkWalletConnection } from "../../utils/functions";
 
 const MarketPlace = () => {
   const navigate = useNavigate();
   const [account, setAccount] = useState(null);
   const [accountState, setAccountState] = useState(null);
   const [signer, setSigner] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [error, setError] = useState(null);
   
   const agriculturalCommodities = images.agricultural;
   const solidMineralCommodities = images.solidMinerals;
@@ -57,13 +61,14 @@ const MarketPlace = () => {
     window.location.reload();
   };
 
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 0);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   useEffect(() => {
+      const checkConnection = async () => {
+        await checkWalletConnection(setAddress, setAccount, setAccountState, setSigner, setError);
+    };
+    
+    checkConnection();
+
     const accountsChangedHandler = (accounts) => {
       if (accounts.length > 0) {
         console.log(accounts[0])
@@ -89,7 +94,35 @@ const MarketPlace = () => {
 
   const [selectedCommodity, setSelectedCommodity] = useState(null);
 
-  // Handle card click to open the modal with selected commodity details
+  const [commodities, setCommodities] = useState([]);
+  
+  useEffect(() => {
+    const fetchCommodities = async () => {
+      if (window.ethereum) {
+        try {
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const signer = await provider.getSigner();
+          
+          const contractAddress = import.meta.env.VITE_TRADE_BRIDGE_SCA; 
+          console.log(contractAddress)
+          const commodityContract = new ethers.Contract(contractAddress, TradeBridgeABI, signer);
+
+          const userCommodities = await commodityContract.getAllCommodities();
+          console.log(userCommodities)
+          setCommodities(userCommodities);
+        } catch (error) {
+          console.error("Error fetching commodities:", error);
+        }
+      }
+    };
+
+    fetchCommodities();
+  }, []);
+
+  const getImg = async function(cid) {
+    return await getSignedUrlFromPinata(cid);
+  }
+  
   const handleCardClick = (commodity) => {
     setSelectedCommodity(commodity);
   };
@@ -107,17 +140,17 @@ const MarketPlace = () => {
       <div className="flex justify-between  border border-white py-3 px-5 rounded-full items-center mb-4">
         {/* Logo */}
         <div className="flex gap-2">
-          {/* <Link to="/"> */}
+          <Link to="/">
           <img src={Logo} alt="Trade Bridge Logo" className="w-10 md:w-[32px]"/>
         <h1 className="text-xl font-bold text-white">Trade<span className="text-[#FF531E]">Bridge</span></h1>
-        {/* </Link> */}
+        </Link>
         </div>
         
         {/* Connect Wallet Button */}
-        {!account ? (
+        {!address ? (
         <button onClick={connectWallet} className="px-4 py-2 bg-[#FF531E] rounded-full">Connect Wallet</button>
       ) : (
-        <button className="px-4 py-2 bg-[#FF531E] rounded-full">{`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}</button>
+        <button className="px-4 py-2 bg-[#FF531E] rounded-full">{`${address.slice(0, 6)}...${address.slice(-4)}`}</button>
       )}
       </div>
 
@@ -177,7 +210,7 @@ const MarketPlace = () => {
       <div className="mt-12">
         <h2 className="text-2xl font-bold mb-4">Trending Commodities</h2>
         <div className="grid grid-cols-4 gap-8">
-          {agriculturalCommodities.slice(0, 4).map((commodity, index) => (
+          {commodities.slice(0, 4).map((commodity, index) => (
             <div
               key={index}
               className="border border-gray-700 rounded-lg shadow-md cursor-pointer bg-gray-700"
@@ -189,8 +222,8 @@ const MarketPlace = () => {
                 className="h-32 w-full object-cover rounded-t-lg"
               />
               <div className="p-4">
-                <h3 className="text-lg font-bold">{commodity.name}</h3>
-                <p className="text-sm">Price per Kilogram: {commodity.price}</p>
+                <h3 className="text-lg font-bold">{commodity[2]}</h3>
+                <p className="text-sm">Price (<span className="text-white">{commodity[5]}</span>): {commodity[6].toString()/10e18} ETH</p>
               </div>
             </div>
           ))}
@@ -199,14 +232,14 @@ const MarketPlace = () => {
 
      {/* Agricultural & Solid Mineral Commodities Section */}
 <div className="mt-12">
-  <h2 className="text-2xl font-bold mb-4">Agricultural & Solid Mineral Commodities</h2>
-  <div className="grid grid-cols-2 gap-8">
+  <h2 className="text-2xl font-bold mb-4">All Commodities</h2>
+  <div className="grid grid-cols-1 gap-8">
 
     {/* Agricultural Commodities */}
     <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-      <h3 className="text-xl font-bold mb-4">Agricultural Commodities</h3>
-      <div className="grid grid-cols-2 gap-4">
-        {agriculturalCommodities.slice(0, 4).map((commodity, index) => (
+      <h3 className="text-xl font-bold mb-4">All Commodities</h3>
+      <div className="grid grid-cols-5 gap-12">
+        {commodities.slice(0, 4).map((commodity, index) => (
           <div
             key={index}
             className="border border-gray-700 rounded-lg shadow-md cursor-pointer bg-gray-900 text-white p-4"
@@ -215,19 +248,20 @@ const MarketPlace = () => {
             <div className="relative">
               <img
                 src={commodity.image}
-                alt={commodity.name}
+                alt={commodity[2]}
                 className="h-40 w-full object-cover rounded-lg"
               />
-              <span className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 text-xs rounded">Sold: {commodity.sold}</span>
+              <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">{commodity[6].toString()/10e18} ETH</span>
               {/* <div className="absolute bottom-2 left-2 text-sm">
                 <span className="text-yellow-500">★ ★ ★ ★ ★</span>
                 <span className="ml-1">Rating</span>
               </div> */}
             </div>
             <div className="pt-4">
-              <h3 className="text-lg font-bold truncate">{commodity.name}</h3>
-              <p className="text-sm mt-2">Price per Kilogram: {commodity.price}</p>
-              <p className="text-xs text-gray-400 mt-2">Price: <span className="text-white font-bold">{commodity.value} ETH</span></p>
+              <h3 className="text-lg font-bold truncate">{commodity[2]}</h3>
+              <p className="text-sm text-gray-400 mt-2">Price (<span className="text-white">{commodity[5]}</span>): {commodity[6].toString()/10e18} ETH</p>
+              <p className="text-sm text-gray-400 mt-2">Quantity: <span className="text-white font-bold">{commodity[4].toString()}</span></p>
+              <p className="text-sm text-gray-400 mt-2">Location: <span className="text-white font-bold">{commodity[9]}</span></p>
               <div className="mt-4 flex justify-between items-center">
                 <button className="bg-orange-500 text-white px-4 py-2 rounded-full">Purchase</button>
               </div>
@@ -243,9 +277,9 @@ const MarketPlace = () => {
     </div>
 
     {/* Solid Mineral Commodities */}
-    <div className="bg-gray-800 p-6 rounded-lg space-y-4">
+    {/* <div className="bg-gray-800 p-6 rounded-lg space-y-4">
       <h3 className="text-xl font-bold mb-4">Solid Mineral Commodities</h3>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4">
         {solidMineralCommodities.slice(0, 4).map((commodity, index) => (
           <div
             key={index}
@@ -259,10 +293,10 @@ const MarketPlace = () => {
                 className="h-40 w-full object-cover rounded-lg"
               />
               <span className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 text-xs rounded">Sold: {commodity.sold}</span>
-              {/* <div className="absolute bottom-2 left-2 text-sm">
+              <div className="absolute bottom-2 left-2 text-sm">
                 <span className="text-yellow-500">★ ★ ★ ★ ★</span>
                 <span className="ml-1">Rating</span>
-              </div> */}
+              </div>
             </div>
             <div className="pt-4">
               <h3 className="text-lg font-bold truncate">{commodity.name}</h3>
@@ -280,7 +314,7 @@ const MarketPlace = () => {
           <button className="bg-[#FF531E] px-4 py-2 rounded-full">See More</button>
         </div>
       </Link>
-    </div>
+    </div> */}
   </div>
 </div>
 
