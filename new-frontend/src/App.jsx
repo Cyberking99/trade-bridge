@@ -8,7 +8,8 @@ import { useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import Navbar from "./components/Navbar";
-import NavbarTwo from "./components/NavbarTwo"
+import NavbarTwo from "./components/NavbarTwo";
+import NavbarThree from "./components/NavbarThree"
 import Hero from "./pages/Hero";
 import BuyerDashboard from "./pages/buyerDashboard/BuyerDashboard";
 import SellerDashboard from "./pages/sellerDashboard/SellerDashboard";
@@ -16,6 +17,8 @@ import Dispute from "./pages/sellerDashboard/Dispute";
 import CreateCommodity from "./pages/sellerDashboard/createCommodity";
 import Orders from "./pages/sellerDashboard/Orders";
 import MarketPlace from "./pages/marketPlace/MarketPlace";
+import AgroCom from "./pages/marketPlace/AgriCommodities"
+import SolidCom from "./pages/marketPlace/solidCommodities"
 import MyCommodity from "./pages/sellerDashboard/MyCommodity";
 import PurchaseCommodity from "./pages/buyerDashboard/Purchase";
 import ViewPurchase from "./pages/buyerDashboard/ViewPurchase";
@@ -27,7 +30,12 @@ function App() {
   const location = useLocation();
 
   // Determine if the current path is the Hero page
-  const isHeroPage = location.pathname === "/";
+ 
+  const isHeroPage = [
+    "/",
+    "/hero"
+  ].includes(location.pathname);
+
   
   // Determine if the current path is one of the pages where the Navbar should be visible
   const showNavbar = [
@@ -45,6 +53,12 @@ function App() {
     "/buyer-dashboard/dispute-sale"
   ].includes(location.pathname);
 
+  const showNavbarThree = [
+    "/market-place",
+    "/market-place/agro-commodities",
+    "/market-place/solid-commodities",
+  ].includes(location.pathname);
+
   return (
     <div className="App flex flex-col min-h-screen">
       {/* Header is only visible on the Hero page */}
@@ -54,11 +68,15 @@ function App() {
       {showNavbar && <Navbar />}
 
       {showNavbarTwo && <NavbarTwo />}
+
+      {showNavbarThree && <NavbarThree />}
+
       {/* Main content */}
       <main className="flex-grow w-auto h-auto bg-gray-200">
         <Routes>
           {/* Route for Hero */}
           <Route path="/" element={<Hero />} />
+          <Route path="/hero" element={<Hero />} />
 
           {/* Seller Dashboard */}
           <Route path="/seller-dashboard" element={<SellerDashboard signer={signer} />} />
@@ -75,6 +93,8 @@ function App() {
 
           {/* Marketplace */}
           <Route path="/market-place" element={<MarketPlace signer={signer} />} />
+          <Route path="/market-place/agro-commodities" element={<AgroCom signer={signer} />} />
+          <Route path="/market-place/solid-commodities" element={<SolidCom signer={signer} />} />
         </Routes>
       </main>
 
@@ -83,7 +103,7 @@ function App() {
   );
 }
 
-// Wrap the App component with Router
+
 const WrappedApp = () => (
   <Router>
     <App />

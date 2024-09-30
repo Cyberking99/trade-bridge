@@ -6,7 +6,7 @@ const Orders = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const [filter, setFilter] = useState('all'); // New state for filter
+  const [filter, setFilter] = useState('all'); 
 
   const contractAddress = "0xYourContractAddress"; 
   const contractABI = [ /* Your contract's ABI here */ ]; 
@@ -33,7 +33,7 @@ const Orders = () => {
   const filteredOrders = orders.filter(order => {
     if (filter === 'pending') return order.status === 'pending';
     if (filter === 'complete') return order.status === 'approved';
-    return true; // For 'all' filter
+    return true;
   });
 
   // Pagination logic

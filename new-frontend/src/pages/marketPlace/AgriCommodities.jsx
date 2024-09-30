@@ -21,8 +21,9 @@ const AgriCommodities = () => {
   };
 
   return (
-    <div className="p-8 mx-40 mt-40">
-      <h1 className="text-2xl font-bold mb-4">Agricultural Commodities</h1>
+    <div className="bg-gray-900">
+    <div className="p-8 mx-40">
+      <h1 className="text-2xl text-white font-bold mb-4">Agricultural Commodities</h1>
       {sellerAddress ? (
         <p className="mb-4">
           <strong>Seller Address:</strong> {sellerAddress}
@@ -79,6 +80,7 @@ const AgriCommodities = () => {
           </button>
         ))}
       </div>
+    </div>
     </div>
   );
 };

@@ -24,7 +24,7 @@ const Header = () => {
       <div className="relative min-h-24 flex md:flex-row">
         {/* Left Half - Dark Blue */}
         <div className="w-[57%] bg-[#141C2B] py-4 px-4 md:px-10 flex justify-between items-center relative">
-          <Link to="/">
+          <Link to="/hero">
             <div className="flex bg-[#182130] rounded-full items-center py-2 px-3 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
               <img
                 src={Logo}
@@ -35,7 +35,7 @@ const Header = () => {
                 <span className="text-white text-xl md:text-2xl font-bold">
                   Trade
                 </span>
-                <span className="text-[#ff6b6b] text-xl md:text-2xl font-bold ml-1">
+                <span className="text-primary-500 text-xl md:text-2xl font-bold ml-1">
                   Bridge
                 </span>
               </div>
@@ -50,11 +50,11 @@ const Header = () => {
           </button>
 
           {/* Bottom Horizontal Line for Left Half */}
-          <div className="absolute bottom-[45px] left-64 w-full h-[2px] bg-[#ff6b6b]"></div>
+          <div className="absolute bottom-[45px] left-64 w-full h-[2px] bg-primary-500"></div>
         </div>
 
         {/* Right Half - Orange */}
-        <div className="w-[50%] bg-[#FF531E] py-4 flex justify-end items-center px-4 relative">
+        <div className="w-[50%] bg-primary-500 py-4 flex justify-end items-center px-4 relative">
           {/* Bottom Horizontal Line for Right Half */}
           <div className="absolute bottom-[45px] left-0 w-[98%] h-[2px] bg-[#141C2B]"></div>
         </div>

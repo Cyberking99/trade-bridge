@@ -1,29 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
-import TradeBridgeABI from '../../../TradeBridge.json'; // Update the path as necessary
+import TradeBridgeABI from '../../../TradeBridge.json'; 
 
 const ViewPurchase = () => {
   const [purchases, setPurchases] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Replace with your contract address
+  
   const contractAddress = import.meta.env.VITE_TRADE_BRIDGE_SCA;
 
   useEffect(() => {
     const fetchPurchases = async () => {
       try {
-        // Connect to Ethereum provider
+        
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
 
-        // Create contract instance
+        
         const tradeBridgeContract = new ethers.Contract(contractAddress, TradeBridgeABI, signer);
 
         // Fetch purchase data (update the method according to your contract)
         const userAddress = await signer.getAddress();
         const purchasesData = await tradeBridgeContract.getPurchasesByUser(userAddress);
 
-        // Process the data if necessary
+        
         setPurchases(purchasesData);
       } catch (error) {
         console.error('Error fetching purchases:', error);

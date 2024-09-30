@@ -12,7 +12,7 @@ import silver from '../assets/images/silver.jpg'
 const images = {
   agricultural: [
     { name: 'Soybean', available: '20 tonnes', price: '0.005 ETH', image: soybean, sellerAddress: '0x123...' },
-    { name: 'rice', available: '50 tonnes', price: '0.002 ETH', image: rice, sellerAddress: '0x123...' },
+    { name: 'Rice', available: '50 tonnes', price: '0.002 ETH', image: rice, sellerAddress: '0x123...' },
     { name: 'Peanut', available: '35 tonnes', price: '0.003 ETH', image: peanut, sellerAddress: '0x123...' },
     { name: 'Coffee', available: '15 tonnes', price: '0.007 ETH', image: coffee, sellerAddress: '0x123...' },
     { name: 'Cocoa', available: '40 tonnes', price: '0.010 ETH', image: AgricImage, sellerAddress: '0x123...' },
