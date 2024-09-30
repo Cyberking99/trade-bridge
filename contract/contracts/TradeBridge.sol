@@ -16,6 +16,7 @@ contract TradeBridge {
     uint public transactionCount;
     uint public nextCommodityId;
     address public owner;
+    uint public totalSales;
 
     struct Commodity {
         uint commodityId;
@@ -108,12 +109,12 @@ contract TradeBridge {
         nextCommodityId++;
     }
 
-    function getAllCommodities() external view returns (Commodity[] memory) {
+    function getAllCommodities() public view returns (Commodity[] memory) {
         return allCommodities;
     }
 
-    function getCommoditiesByUser(address user) external view returns (Commodity[] memory) {
-        uint[] memory userCommodityIds = userCommodities[user];
+    function getCommoditiesByUser(address _user) public view returns (Commodity[] memory) {
+        uint[] memory userCommodityIds = userCommodities[_user];
         Commodity[] memory userCommoditiesArray = new Commodity[](userCommodityIds.length);
 
         for (uint i = 0; i < userCommodityIds.length; i++) {
@@ -144,6 +145,8 @@ contract TradeBridge {
             commodityId: _commodityId,
             quantity: _quantity
         }));
+
+        totalSales += 1;
 
         userCommoditiesInvolved[msg.sender][_commodityId] = true;
 

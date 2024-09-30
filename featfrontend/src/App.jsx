@@ -57,10 +57,6 @@ function App() {
         <Routes>
           {/* Route for Hero */}
           <Route path="/" element={<Hero />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/product" element={<ProductForm />} />
-          <Route path="/list" element={<ProductList />} />
-          <Route path="/marketplace" element={<MarketPlaceListing />} />
 
           {/* Seller Dashboard */}
           <Route path="/seller-dashboard" element={<SellerDashboard signer={signer} />} />

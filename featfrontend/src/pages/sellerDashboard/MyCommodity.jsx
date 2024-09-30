@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
-import TradeBridgeABI from "../../../TradeBridge.json";
+import TradeBridgeABI from "../../../ABIs/TradeBridge.json";
 import { getSignedUrlFromPinata } from "../../utils/functions";
 
 const MyCommodity = () => {

@@ -93,3 +93,28 @@ export const getSignedUrlFromPinata = async (cid) => {
     throw new Error('Could not fetch signed URL');
   }
 };
+
+export const checkWalletConnection = async (setAddress, setAccount, setAccountState, setSigner, setError) => {
+  if (window.ethereum) {
+      try {
+          const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+          if (accounts.length > 0) {
+              const provider = new ethers.BrowserProvider(window.ethereum);
+              const signer = await provider.getSigner();
+              const userAddress = await signer.getAddress();
+              const accounts = await provider.listAccounts();
+              
+              setSigner(signer);
+              setAccount(accounts[0]);
+              setAccountState(accounts[0]);
+              setAddress(userAddress);
+          } else {
+              setError('No accounts found. Please connect your wallet.');
+          }
+      } catch (err) {
+          setError('Error connecting to wallet: ' + err.message);
+      }
+  } else {
+      setError('Ethereum provider not found. Please install MetaMask.');
+  }
+};
