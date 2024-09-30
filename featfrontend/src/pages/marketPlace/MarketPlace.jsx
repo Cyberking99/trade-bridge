@@ -129,9 +129,17 @@ const MarketPlace = () => {
 
   // Handle navigation to the purchase page
   const handlePurchaseClick = () => {
-    navigate("/buyer-dashboard/purchase-commodity", {
-      state: { commodity: selectedCommodity },
-    });
+    if (selectedCommodity) {
+      
+      const commodityArray = Array.from(selectedCommodity);
+
+      commodityArray[0] = commodityArray[0].toString();
+      commodityArray[4] = commodityArray[4].toString();
+      commodityArray[6] = commodityArray[6].toString();
+      commodityArray[12] = commodityArray[12].toString();
+      
+      navigate('/buyer-dashboard/purchase-commodity', { state: { commodityChoice: JSON.stringify(commodityArray) } });
+    }
   };
 
   return (
@@ -153,20 +161,6 @@ const MarketPlace = () => {
         <button className="px-4 py-2 bg-[#FF531E] rounded-full">{`${address.slice(0, 6)}...${address.slice(-4)}`}</button>
       )}
       </div>
-
-      {/* Search Filter Section */}
-      {/* <div className="flex justify-between border border-white rounded-full py-3 px-5 items-center mb-8">
-        <div className="flex space-x-4">
-          <button className="text-sm px-4 py-2 bg-gray-700 rounded-md">Categories</button>
-          <input
-            type="text"
-            placeholder="Search..."
-            className="bg-gray-800 text-gray-300 px-4 py-2 rounded-md"
-          />
-          <button className="px-8 py-2 bg-[#FF531E] rounded-full">Search</button>
-        </div>
-        <button className="px-8 py-2 bg-gray-800 rounded-full border border-[#FF531E]">Filters</button>
-      </div> */}
 
       {/* Top Rated Section */}
       <div className="flex">
@@ -217,8 +211,8 @@ const MarketPlace = () => {
               onClick={() => handleCardClick(commodity)}
             >
               <img
-                src={commodity.image}
-                alt={commodity.name}
+                src="/trade_bridge.png"
+                alt={commodity[2]}
                 className="h-32 w-full object-cover rounded-t-lg"
               />
               <div className="p-4">
@@ -247,15 +241,11 @@ const MarketPlace = () => {
           >
             <div className="relative">
               <img
-                src={commodity.image}
+                src="/trade_bridge.png"
                 alt={commodity[2]}
                 className="h-40 w-full object-cover rounded-lg"
               />
               <span className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 text-xs rounded">{commodity[6].toString()/10e18} ETH</span>
-              {/* <div className="absolute bottom-2 left-2 text-sm">
-                <span className="text-yellow-500">★ ★ ★ ★ ★</span>
-                <span className="ml-1">Rating</span>
-              </div> */}
             </div>
             <div className="pt-4">
               <h3 className="text-lg font-bold truncate">{commodity[2]}</h3>
@@ -269,52 +259,7 @@ const MarketPlace = () => {
           </div>
         ))}
       </div>
-      {/*<Link to="/">
-        <div className="flex justify-end">
-          <button className="bg-[#FF531E] px-4 py-2 rounded-full">See More</button>
-        </div>
-      </Link>*/}
     </div>
-
-    {/* Solid Mineral Commodities */}
-    {/* <div className="bg-gray-800 p-6 rounded-lg space-y-4">
-      <h3 className="text-xl font-bold mb-4">Solid Mineral Commodities</h3>
-      <div className="grid grid-cols-1 gap-4">
-        {solidMineralCommodities.slice(0, 4).map((commodity, index) => (
-          <div
-            key={index}
-            className="border border-gray-700 rounded-lg shadow-md cursor-pointer bg-gray-900 text-white p-4"
-            onClick={() => handleCardClick(commodity)}
-          >
-            <div className="relative">
-              <img
-                src={commodity.image}
-                alt={commodity.name}
-                className="h-40 w-full object-cover rounded-lg"
-              />
-              <span className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 text-xs rounded">Sold: {commodity.sold}</span>
-              <div className="absolute bottom-2 left-2 text-sm">
-                <span className="text-yellow-500">★ ★ ★ ★ ★</span>
-                <span className="ml-1">Rating</span>
-              </div>
-            </div>
-            <div className="pt-4">
-              <h3 className="text-lg font-bold truncate">{commodity.name}</h3>
-              <p className="text-sm mt-2">Price per Kilogram: {commodity.price}</p>
-              <p className="text-xs text-gray-400 mt-2">Price: <span className="text-white font-bold">{commodity.value} ETH</span></p>
-              <div className="mt-4 flex justify-between items-center">
-                <button className="bg-orange-500 text-white px-4 py-2 rounded-full">Purchase</button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <Link to="/">
-        <div className="flex justify-end">
-          <button className="bg-[#FF531E] px-4 py-2 rounded-full">See More</button>
-        </div>
-      </Link>
-    </div> */}
   </div>
 </div>
 
@@ -323,26 +268,22 @@ const MarketPlace = () => {
       {selectedCommodity && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white text-gray-900 p-6 rounded-lg w-1/3">
-            <h2 className="text-2xl font-bold mb-4">{selectedCommodity[2]}</h2>
-            <p>
-              <strong>Available:</strong> {selectedCommodity.available}
-            </p>
-            <p>
-              <strong>Price per Kilogram:</strong> {selectedCommodity.price}
-            </p>
-            <p>
-              <strong>Seller Address:</strong> {selectedCommodity.sellerAddress}
-            </p>
-            <div className="mt-6 flex justify-end space-x-4">
+            <h2 className='text-2xl font-bold mb-4'>{selectedCommodity[2]}</h2>
+            <img src="/trade_bridge.png" alt={selectedCommodity[2]} className='h-full w-full object-contain rounded-t-lg' />
+            <p><strong>Commodity ID:</strong> #{selectedCommodity[0].toString()}</p>
+            <p><strong>Quantity:</strong> {selectedCommodity[4].toString()}</p>
+            <p><strong>Price per {selectedCommodity[5]}:</strong> {selectedCommodity[6].toString()/10e18} ETH</p>
+            <p><strong>Seller Address:</strong> {selectedCommodity[1]}</p>
+            <div className='mt-6'>
               <button
                 onClick={handlePurchaseClick}
-                className="px-6 py-2 text-white bg-[#FF531E] rounded"
+                className='px-6 py-2 text-white bg-primary-200 rounded hover:bg-blue-800'
               >
                 Purchase
               </button>
               <button
                 onClick={() => setSelectedCommodity(null)}
-                className="px-6 py-2 text-white bg-red-600 rounded"
+                className='ml-4 px-6 py-2 text-white bg-red-600 rounded hover:bg-red-800'
               >
                 Close
               </button>

@@ -43,7 +43,7 @@ const MyCommodity = () => {
         {commodities.map((commodity, index) => (
           <div key={index} className="border rounded-lg bg-white shadow-md w-72 h-72">
             <div className="h-48 overflow-hidden mb-4">
-              <img src={getImg(commodity[8])} alt={commodity[2]} className="h-full w-full object-contain rounded-t-lg" />
+              <img src="/trade_bridge.png" alt={commodity[2]} className="h-full w-full object-contain rounded-t-lg" />
             </div>
             <div className="p-2 h-28 bg-white rounded-b-lg">
               <h2 className="text-lg font-semibold mb-2">{commodity[2]}</h2>

@@ -13,11 +13,10 @@ export async function connectWallet() {
           const userSigner = await provider.getSigner();
           const accounts = await provider.listAccounts();
           
-          return { userSigner, accounts };
-        //   setSigner(userSigner);
-        //   setAccount(accounts[0]);
-        //   setAccountState(accounts[0]);
           console.log("Connected account:", accounts[0]);
+          
+          return { userSigner, accounts };
+
         } catch (error) {
           if (error.code === 4001) {
             console.error("User rejected the request.");
