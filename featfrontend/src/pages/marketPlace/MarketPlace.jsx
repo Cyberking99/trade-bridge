@@ -269,11 +269,11 @@ const MarketPlace = () => {
           </div>
         ))}
       </div>
-      <Link to="/">
+      {/*<Link to="/">
         <div className="flex justify-end">
           <button className="bg-[#FF531E] px-4 py-2 rounded-full">See More</button>
         </div>
-      </Link>
+      </Link>*/}
     </div>
 
     {/* Solid Mineral Commodities */}
@@ -323,7 +323,7 @@ const MarketPlace = () => {
       {selectedCommodity && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-white text-gray-900 p-6 rounded-lg w-1/3">
-            <h2 className="text-2xl font-bold mb-4">{selectedCommodity.name}</h2>
+            <h2 className="text-2xl font-bold mb-4">{selectedCommodity[2]}</h2>
             <p>
               <strong>Available:</strong> {selectedCommodity.available}
             </p>

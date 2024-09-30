@@ -21,10 +21,6 @@ import MyCommodity from "./pages/sellerDashboard/MyCommodity";
 import PurchaseCommodity from "./pages/buyerDashboard/Purchase";
 import ViewPurchase from "./pages/buyerDashboard/ViewPurchase";
 import DisputeSale from "./pages/buyerDashboard/Dispute";
-import ProductForm from "./pages/ProductForm";
-import Home from "./pages/Home";
-import ProductList from "./pages/ProductList";
-import MarketPlaceListing from "./pages/MarketPlaceListing";
 
 function App() {
   const [signer, setSigner] = useState(null);
