@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
+import TradeBridgeABI from "../../../ABIs/TradeBridge.json";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 8;
-  const [filter, setFilter] = useState('all'); 
+  const [filter, setFilter] = useState('all');
 
-  const contractAddress = "0xYourContractAddress"; 
-  const contractABI = [ /* Your contract's ABI here */ ]; 
 
   const fetchOrdersFromContract = async () => {
     try {
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      const contract = new ethers.Contract(contractAddress, contractABI, signer);
+      const contractAddress = import.meta.env.VITE_TRADE_BRIDGE_SCA; 
+      const contract = new ethers.Contract(contractAddress, TradeBridgeABI, signer);
       const fetchedOrders = await contract.getOrders();
       setOrders(fetchedOrders);
     } catch (error) {
@@ -29,20 +29,17 @@ const Orders = () => {
     fetchOrdersFromContract();
   }, []);
 
-  // Filter orders based on the selected filter
   const filteredOrders = orders.filter(order => {
     if (filter === 'pending') return order.status === 'pending';
     if (filter === 'complete') return order.status === 'approved';
     return true;
   });
 
-  // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentItems = filteredOrders.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage);
 
-  // Conditional rendering
   if (loading) {
     return <div className="mt-16 mx-20">Loading orders...</div>; 
   }

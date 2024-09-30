@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { Link } from "react-router-dom";
-import Logo from "../assets/images/trade-bridge.svg";
+import Logo from "../assets/images/trade_bridge.png";
 import { ethers } from "ethers";
-import Buttons from "./Buttons";
 
 const Header = ({ setSigner, setAccount }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,13 +17,10 @@ const Header = ({ setSigner, setAccount }) => {
       console.log("MetaMask detected");
       console.log('clicked')
       try {
-        // Create a new provider using ethers.BrowserProvider
         const provider = new ethers.BrowserProvider(window.ethereum);
         
-        // Request account access
         await window.ethereum.request({ method: "eth_requestAccounts" });
         
-        // Get the signer and accounts
         const userSigner = await provider.getSigner();
         const accounts = await provider.listAccounts();
         
@@ -54,7 +50,7 @@ const Header = ({ setSigner, setAccount }) => {
     setSigner(null);
     setDropdownOpen(false);
     console.log("Wallet disconnected");
-    window.location.reload(); // consider a better approach than reload
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -86,90 +82,84 @@ const Header = ({ setSigner, setAccount }) => {
       }
     };
   }, []);
+  
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <div className={`fixed top-0 left-0 w-full z-50 transition-shadow duration-300 ${isScrolled ? "bg-slate-200 shadow-lg" : "bg-slate-200"}`}>
-      <div className="flex px-2 py-2 items-center mx-10">
-        <Link to="/">
-          <div className="flex items-center">
-            <img src={Logo} alt="Trade Bridge Logo" className="w-20" />
-            <div className="border-l-2 border-primary-100 px-2 text-black">
-              <h1 className="font-bold text-2xl">Trade Bridge</h1>
+    <div
+      className={`fixed top-0 left-0 w-full z-50 ${
+        isScrolled ? "shadow-lg" : ""
+      }`}
+    >
+      <div className="relative min-h-24 flex md:flex-row">
+        {/* Left Half - Dark Blue */}
+        <div className="w-[57%] bg-[#141C2B] py-4 px-4 md:px-10 flex justify-between items-center relative">
+          <Link to="/">
+            <div className="flex bg-[#182130] rounded-full items-center py-2 px-3 shadow-lg hover:shadow-2xl transition-shadow duration-300 ease-in-out">
+              <img
+                src={Logo}
+                alt="Trade Bridge Logo"
+                className="w-10 md:w-[32px]"
+              />
+              <div className="flex items-center ml-2">
+                <span className="text-white text-xl md:text-2xl font-bold">
+                  Trade
+                </span>
+                <span className="text-[#ff6b6b] text-xl md:text-2xl font-bold ml-1">
+                  Bridge
+                </span>
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
 
-        <div className="md:hidden">
-          <button onClick={toggleSidebar} className="text-primary-200 text-2xl">
-            {isOpen ? <AiOutlineClose className="text-white ml-24" /> : <AiOutlineMenu className="ml-24" />}
-          </button>
-        </div>
-
-        <div className="hidden md:flex flex-col gap-4 md:flex-row md:flex-1 md:justify-end items-center space-y-4 md:space-y-0 md:space-x-2">
-          <nav className="flex flex-col items-center gap-4 md:flex-row space-y-6 md:space-y-0 md:space-x-2 px-5 text-nowrap text-sm font-semibold">
-            <div className="relative">
-              {!account ? (
-                <Buttons onClick={connectWallet} className="bg-primary-300 text-white flex items-center gap-1 px-8 py-3 rounded-md focus:outline-none">
-                  Connect Wallet
-                  
-                </Buttons>
-              ) : (
-                <div className="relative">
-                  <button onClick={() => setDropdownOpen(!dropdownOpen)} className="bg-primary-300 text-white flex items-center gap-1 px-8 py-3 rounded-md focus:outline-none">
-                    {`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}
-                  </button>
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                      <ul className="py-2">
-                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={disconnectWallet}>
-                          Disconnect
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </nav>
-        </div>
-
-        <div className={`fixed top-0 right-0 h-full w-64 bg-bgText text-white z-50 transform ${isOpen ? "translate-x-0" : "translate-x-full"} transition-transform duration-300 ease-in-out`}>
-          <button onClick={toggleSidebar} className="text-2xl p-4">
-            <AiOutlineClose />
+          <button
+            onClick={toggleSidebar}
+            className="md:hidden text-white text-2xl"
+          >
+            {isOpen ? <AiOutlineClose /> : <AiOutlineMenu />}
           </button>
 
-          <nav className="flex flex-col p-4 space-y-6 text-md">
-            <Link to="/owner-dashboard" className="bg-primary-300 text-white px-2 py-3 rounded-md">
-              Owner Dashboard
-            </Link>
-            <Link to="/staking" className="bg-primary-300 text-white px-2 py-3 rounded-md">
-              Staking Pool
-            </Link>
-            <div className="relative">
-              {!account ? (
-                <button onClick={connectWallet} className="bg-logoColor text-white flex items-center gap-1 px-2 py-3 rounded-md focus:outline-none">
-                  Connect Wallet
-                </button>
-              ) : (
-                <div className="relative">
-                  <button onClick={() => setDropdownOpen(!dropdownOpen)} className="bg-primary-300 text-white flex items-center gap-1 px-2 py-3 rounded-md focus:outline-none">
-                    {`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}
-                  </button>
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                      <ul className="py-2">
-                        <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={disconnectWallet}>
-                          Disconnect
-                        </li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </nav>
+          {/* Bottom Horizontal Line for Left Half */}
+          <div className="absolute bottom-[45px] left-64 w-full h-[2px] bg-[#ff6b6b]"></div>
+        </div>
+
+        {/* Right Half - Orange */}
+        <div className="w-[50%] bg-[#FF531E] py-4 flex justify-end items-center px-4 relative">
+          {/* Bottom Horizontal Line for Right Half */}
+          <div className="absolute bottom-[45px] left-0 w-[98%] h-[2px] bg-[#141C2B]"></div>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="fixed top-0 left-0 w-full h-full bg-[#141C2B] flex flex-col justify-center items-center z-40">
+          <button
+            onClick={toggleSidebar}
+            className="absolute top-6 right-6 text-white text-2xl"
+          >
+            <AiOutlineClose />
+          </button>
+          <nav className="flex flex-col items-center space-y-4 text-white">
+            <Link to="/" className="text-2xl" onClick={toggleSidebar}>
+              Home
+            </Link>
+            <Link
+              to="/market-place"
+              className="text-2xl"
+              onClick={toggleSidebar}
+            >
+              Market Place
+            </Link>
+            <Link to="/contribute" className="text-2xl" onClick={toggleSidebar}>
+              Contribute
+            </Link>
+          </nav>
+        </div>
+      )}
     </div>
   );
 };
