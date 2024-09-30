@@ -26,9 +26,13 @@ function App() {
   const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState(null);
   const location = useLocation();
+  
+  // Determine if the current path is one of the pages where the Navbar should be visible
+  const isHeroPage = [
+    "/",
+    "/hero"
+  ].includes(location.pathname);
 
-  // Determine if the current path is the Hero page
-  const isHeroPage = location.pathname === "/";
   
   // Determine if the current path is one of the pages where the Navbar should be visible
   const showNavbar = [
@@ -37,6 +41,19 @@ function App() {
     "/seller-dashboard/my-commodity",
     "/seller-dashboard/orders",
     "/seller-dashboard/dispute"
+  ].includes(location.pathname);
+
+  const showNavbarTwo = [
+    "/buyer-dashboard",
+    "/buyer-dashboard/purchase-commodity",
+    "/buyer-dashboard/view-purchase",
+    "/buyer-dashboard/dispute-sale"
+  ].includes(location.pathname);
+
+  const showNavbarThree = [
+    "/market-place",
+    "/market-place/agro-commodities",
+    "/market-place/solid-commodities",
   ].includes(location.pathname);
 
   return (

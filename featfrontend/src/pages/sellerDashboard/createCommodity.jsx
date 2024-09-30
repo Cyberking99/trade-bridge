@@ -150,7 +150,7 @@ const CreateCommodity = () => {
         setSuccess(true);
         setIsSubmitting(false);
         
-        setCcommodityName("");
+        setCommodityName("");
         setQuantity("");
         setMeasurement("");
         setPrice("");
