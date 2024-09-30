@@ -1,14 +1,91 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import images from "../../components/Images";
 import blockies from 'blockies';
 import Skeleton from "../../components/Skeleton";
 import Logo from "../../assets/images/trade_bridge.png";
+import {ethers} from "ethers";
 
 const MarketPlace = () => {
   const navigate = useNavigate();
+  const [account, setAccount] = useState(null);
+  const [accountState, setAccountState] = useState(null);
+  const [signer, setSigner] = useState(null);
+  
   const agriculturalCommodities = images.agricultural;
   const solidMineralCommodities = images.solidMinerals;
+
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== "undefined") {
+      console.log("MetaMask detected");
+      console.log('clicked')
+      try {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        
+        const userSigner = await provider.getSigner();
+        const accounts = await provider.listAccounts();
+        
+        setSigner(userSigner);
+        setAccount(accounts[0]);
+        setAccountState(accounts[0]);
+        console.log("Connected account:", accounts[0]);
+        window.reload;
+      } catch (error) {
+        if (error.code === 4001) {
+          console.error("User rejected the request.");
+          alert("You rejected the connection request. Please connect to use the app.");
+        } else {
+          console.error("Error fetching accounts or connecting to MetaMask:", error);
+        }
+      }
+    } else {
+      console.error("MetaMask not installed. Please install MetaMask to use this app.");
+      alert("MetaMask not installed. Please install it to proceed.");
+    }
+  };
+
+  
+
+  const disconnectWallet = () => {
+    setAccountState(null);
+    setAccount(null);
+    setSigner(null);
+    setDropdownOpen(false);
+    console.log("Wallet disconnected");
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 0);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const accountsChangedHandler = (accounts) => {
+      if (accounts.length > 0) {
+        console.log(accounts[0])
+        setAccountState(accounts[0]);
+        setAccount(accounts[0]);
+      } else {
+        disconnectWallet();
+      }
+    };
+
+    if (window.ethereum) {
+      window.ethereum.on("accountsChanged", accountsChangedHandler);
+      window.ethereum.on("disconnect", disconnectWallet);
+    }
+
+    return () => {
+      if (window.ethereum) {
+        window.ethereum.removeListener("accountsChanged", accountsChangedHandler);
+        window.ethereum.removeListener("disconnect", disconnectWallet);
+      }
+    };
+  }, []);
 
   const [selectedCommodity, setSelectedCommodity] = useState(null);
 
@@ -30,16 +107,22 @@ const MarketPlace = () => {
       <div className="flex justify-between  border border-white py-3 px-5 rounded-full items-center mb-4">
         {/* Logo */}
         <div className="flex gap-2">
+          {/* <Link to="/"> */}
           <img src={Logo} alt="Trade Bridge Logo" className="w-10 md:w-[32px]"/>
         <h1 className="text-xl font-bold text-white">Trade<span className="text-[#FF531E]">Bridge</span></h1>
+        {/* </Link> */}
         </div>
         
         {/* Connect Wallet Button */}
-        <button className="px-4 py-2 bg-[#FF531E] rounded-full">Connect Wallet</button>
+        {!account ? (
+        <button onClick={connectWallet} className="px-4 py-2 bg-[#FF531E] rounded-full">Connect Wallet</button>
+      ) : (
+        <button className="px-4 py-2 bg-[#FF531E] rounded-full">{`${account.address.slice(0, 6)}...${account.address.slice(-4)}`}</button>
+      )}
       </div>
 
       {/* Search Filter Section */}
-      <div className="flex justify-between border border-white rounded-full py-3 px-5 items-center mb-8">
+      {/* <div className="flex justify-between border border-white rounded-full py-3 px-5 items-center mb-8">
         <div className="flex space-x-4">
           <button className="text-sm px-4 py-2 bg-gray-700 rounded-md">Categories</button>
           <input
@@ -50,7 +133,7 @@ const MarketPlace = () => {
           <button className="px-8 py-2 bg-[#FF531E] rounded-full">Search</button>
         </div>
         <button className="px-8 py-2 bg-gray-800 rounded-full border border-[#FF531E]">Filters</button>
-      </div>
+      </div> */}
 
       {/* Top Rated Section */}
       <div className="flex">
@@ -136,15 +219,15 @@ const MarketPlace = () => {
                 className="h-40 w-full object-cover rounded-lg"
               />
               <span className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 text-xs rounded">Sold: {commodity.sold}</span>
-              <div className="absolute bottom-2 left-2 text-sm">
+              {/* <div className="absolute bottom-2 left-2 text-sm">
                 <span className="text-yellow-500">★ ★ ★ ★ ★</span>
                 <span className="ml-1">Rating</span>
-              </div>
+              </div> */}
             </div>
             <div className="pt-4">
               <h3 className="text-lg font-bold truncate">{commodity.name}</h3>
               <p className="text-sm mt-2">Price per Kilogram: {commodity.price}</p>
-              <p className="text-xs text-gray-400 mt-2">Commodity value: <span className="text-white font-bold">{commodity.value} ETH</span></p>
+              <p className="text-xs text-gray-400 mt-2">Price: <span className="text-white font-bold">{commodity.value} ETH</span></p>
               <div className="mt-4 flex justify-between items-center">
                 <button className="bg-orange-500 text-white px-4 py-2 rounded-full">Purchase</button>
               </div>
@@ -176,15 +259,15 @@ const MarketPlace = () => {
                 className="h-40 w-full object-cover rounded-lg"
               />
               <span className="absolute top-2 left-2 bg-yellow-500 text-black px-2 py-1 text-xs rounded">Sold: {commodity.sold}</span>
-              <div className="absolute bottom-2 left-2 text-sm">
+              {/* <div className="absolute bottom-2 left-2 text-sm">
                 <span className="text-yellow-500">★ ★ ★ ★ ★</span>
                 <span className="ml-1">Rating</span>
-              </div>
+              </div> */}
             </div>
             <div className="pt-4">
               <h3 className="text-lg font-bold truncate">{commodity.name}</h3>
               <p className="text-sm mt-2">Price per Kilogram: {commodity.price}</p>
-              <p className="text-xs text-gray-400 mt-2">Commodity value: <span className="text-white font-bold">{commodity.value} ETH</span></p>
+              <p className="text-xs text-gray-400 mt-2">Price: <span className="text-white font-bold">{commodity.value} ETH</span></p>
               <div className="mt-4 flex justify-between items-center">
                 <button className="bg-orange-500 text-white px-4 py-2 rounded-full">Purchase</button>
               </div>

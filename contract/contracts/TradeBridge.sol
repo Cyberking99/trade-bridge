@@ -5,12 +5,11 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 
-// interface ITBTK {
-//     function balanceOf(address account) external view returns (uint);
-//     function transfer(address recipient, uint amount) external returns (bool);
-//     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
-// }
-
+interface TradeBridgeTokenC {
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount) external returns (bool);
+    function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+}
 
 contract TradeBridge {
     uint public transactionFee;
@@ -56,6 +55,7 @@ contract TradeBridge {
     mapping(address => uint[]) public userCommodities;
     mapping(address => mapping(uint => bool)) public userCommoditiesInvolved;
     mapping(uint => Dispute) public disputes;
+    mapping(address => Sale) allSales;
 
     event CommodityPurchased(address indexed buyer, uint commodityId, uint quantity, uint amount);
     event CommodityAdded(address indexed seller, uint commodityId, string commodityTitle, string commodityDescription, uint commodityQuantity, string quantityMeasurement, string image, string imageURL, uint createdAt, string commodityLocation);
